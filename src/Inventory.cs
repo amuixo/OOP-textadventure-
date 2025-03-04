@@ -51,7 +51,7 @@ public class Inventory
 //method show all items in inventory
     public string ShowInventory()
     {
-        string str = "Items in inventory: ";
+        string str = " ";
         foreach (var item in items)
         {
             str += item.Value.Description + " ";

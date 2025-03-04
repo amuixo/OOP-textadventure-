@@ -15,7 +15,7 @@ class CommandLibrary
 		validCommands.Add("quit");
 		validCommands.Add("look");
 		validCommands.Add("status");
-		validCommands.Add("Inventorty");
+		validCommands.Add("Inventory");
 		validCommands.Add("take");
 		validCommands.Add("drop");
 		

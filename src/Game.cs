@@ -207,7 +207,7 @@ private void PrintLook()
 
 	private void TakeItem (Command command)
 	{
-	 Console.WriteLine("You picked up the item");
+	 Console.WriteLine("You picked up: ");
 	}
 
 private void DropItem (Command command)
@@ -216,4 +216,4 @@ private void DropItem (Command command)
 	}
 	
 }
-
+n 
