@@ -23,21 +23,21 @@ public class Inventory
     }
 
     public Item Get(string itemName)
-    {
-       if (items.ContainsKey(itemName))
+
         {
-            Item item = items[itemName];
+            items.TryGetValue(itemName, out Item item);
             items.Remove(itemName);
             return item;
         }
-        return null;
-    }
+
 
     public int TotalWeight()
     {
         int total = 0;
-        // TODO implement:
-        // loop through the items, and add all the weights
+        foreach (var item in items)
+        {
+            total += item.Value.Weight;
+        }
         return total;
     }
 

@@ -62,10 +62,10 @@ class Room
     }
 
     // Add an item to the room
-    public void AddItem(Item item)
-    {
-        chest.Put(item.Name, item);
-    }
+    // public void AddItem(Item item)
+    // {
+    //     chest.Put(item.Name, item);
+    // }
 
     // Property to access the room's chest
     public Inventory Chest

@@ -48,19 +48,19 @@ class Game
 		attic.AddExit("up", outside);
 
 		// Create your Items here
-		Item sword = new Item(2, "a sharp and pointy sword, nice!"); 
+		Item sword = new Item(2, "a sharp and pointy sword, nice!");
 		Item potion = new Item(4, "a potion that seems to heal you, nice!");
-		
+
 		// And add them to the Rooms
-		
-		outside.AddItem(sword);
-		outside.AddItem(potion);
+
+		outside.Chest.Put("sword", sword);
+		outside.Chest.Put("potion", potion);
 
 
 		// Start game outside
 		player.CurrentRoom = outside;
-		
-		
+
+
 	}
 
 	//  Main play routine. Loops until end of play.	
@@ -96,45 +96,42 @@ class Game
 	// If this command ends the game, it returns true.
 	// Otherwise false is returned.
 	private bool ProcessCommand(Command command)
-{
-    bool wantToQuit = false;
+	{
+		bool wantToQuit = false;
 
-    if (command.IsUnknown())
-    {
-        Console.WriteLine("I don't know what you mean...");
-        return wantToQuit; // false
-    }
+		if (command.IsUnknown())
+		{
+			Console.WriteLine("I don't know what you mean...");
+			return wantToQuit; // false
+		}
 
-    switch (command.CommandWord)
-    {
-        case "help":
-            PrintHelp();
-            break;
-        case "go":
-            GoRoom(command);
-            break;
-        case "quit":
-            wantToQuit = true;
-            break;
-        case "look":
-            PrintLook();
-            break;
-        case "status":
-            PrintStatus();
-            break;
-        case "backpack":
-            PrintBackpack();
-            break;
-        case "take":
-            TakeItem(command);
-            break;
-        case "drop":
-            DropItem(command);
-            break;
-    }
+		switch (command.CommandWord)
+		{
+			case "help":
+				PrintHelp();
+				break;
+			case "go":
+				GoRoom(command);
+				break;
+			case "quit":
+				wantToQuit = true;
+				break;
+			case "look":
+				PrintLook();
+				break;
+			case "status":
+				PrintStatus();
+				break;
+			case "take":
+				TakeItem(command);
+				break;
+			case "drop":
+				DropItem(command);
+				break;
+		}
 
-    return wantToQuit;
-}
+		return wantToQuit;
+	}
 
 	// ######################################
 	// implementations of user commands:
@@ -156,12 +153,8 @@ class Game
 	{
 		Console.WriteLine("Your health is: " + player.health);
 		Console.WriteLine("You are in: " + player.CurrentRoom.GetShortDescription());
+		Console.WriteLine("You are carrying: " + player.backpack.ShowInventory());
 	}
-		private void PrintBackpack()
-	{
-		Console.WriteLine("You are carrying: " + player.backpack.ShowInventory());		
-	}
-
 	// Try to go to one direction. If there is an exit, enter the new
 	// room, otherwise print an error message.
 	private void GoRoom(Command command)
@@ -190,30 +183,72 @@ class Game
 		Console.WriteLine(player.CurrentRoom.GetLongDescription());
 	}
 	///Look if no item "There's no items in this room.." if item string in deze kamer dan laat namen zien
-private void PrintLook()
-{
-    Inventory chest = player.CurrentRoom.Chest;
-    string items = chest.ShowInventory();
-
-    if (items == "nothing")
-    {
-        Console.WriteLine("There are no items in this room...");
-    }
-    else
-    {
-        Console.WriteLine("You see the following items: " + items);
-    }
-}
-
-	private void TakeItem (Command command)
+	private void PrintLook()
 	{
-	 Console.WriteLine("You picked up: ");
+		Inventory chest = player.CurrentRoom.Chest;
+		string items = chest.ShowInventory();
+
+		if (items == "nothing")
+		{
+			Console.WriteLine("There are no items in this room...");
+		}
+		else
+		{
+			Console.WriteLine("You see the following items: " + items);
+		}
 	}
 
-private void DropItem (Command command)
+	private void TakeItem(Command command)
 	{
-			Console.WriteLine("You dropped the item");
+		if (!command.HasSecondWord())
+		{
+			Console.WriteLine("Take what?");
+			return;
+		}
+
+		string itemName = command.SecondWord;
+		Item item = player.CurrentRoom.Chest.Get(itemName);
+
+		if (item == null)
+		{
+			Console.WriteLine("There is no " + itemName + " in this room.");
+			return;
+		}
+
+		if (player.backpack.Put(itemName, item))
+		{
+			Console.WriteLine("You took the " + itemName);
+		}
+		else
+		{
+			Console.WriteLine("You can't carry that much.");
+			player.CurrentRoom.Chest.Put(itemName, item);
+		}
 	}
-	
+
+
+	private void DropItem(Command command)
+	{
+		if (!command.HasSecondWord())
+
+		{
+			Console.WriteLine("Drop what?");
+			return;
+		}
+		string itemName = command.SecondWord;
+		Item item = player.backpack.Get(itemName);
+		if (item != null)
+		{
+			player.CurrentRoom.Chest.Put(itemName, item);
+			Console.WriteLine($"You dropped the {itemName}. ");
+		}
+		else
+		{
+			Console.WriteLine($"You don't have a {itemName} in your inventory.");
+		}
+
+
+	}
 }
-n 
+
+
