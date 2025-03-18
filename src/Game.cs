@@ -49,7 +49,8 @@ class Game
 
 		// Create your Items here
 		Item sword = new Item(2, "a sharp and pointy sword, nice!");
-		Item potion = new Item(4, "a potion that seems to heal you, nice!");
+		Item potion = new Item(40, "a potion that seems to heal you, nice!");
+	
 
 		// And add them to the Rooms
 
@@ -75,6 +76,11 @@ class Game
 		{
 			Command command = parser.GetCommand();
 			finished = ProcessCommand(command);
+			if (!player.IsAlive())
+			{
+				Console.WriteLine("You died, noob! Write 'quit' to exit the game");
+				finished = true;
+			}
 		}
 		Console.WriteLine("Thank you for playing.");
 		Console.WriteLine("Press [Enter] to continue.");
@@ -128,6 +134,9 @@ class Game
 			case "drop":
 				DropItem(command);
 				break;
+			case "use":
+				Use(command);
+				break;
 		}
 
 		return wantToQuit;
@@ -153,7 +162,8 @@ class Game
 	{
 		Console.WriteLine("Your health is: " + player.health);
 		Console.WriteLine("You are in: " + player.CurrentRoom.GetShortDescription());
-		Console.WriteLine("You are carrying: " + player.backpack.ShowInventory());
+		Console.WriteLine("You are carrying: " + player.backpack.ShowInventory() + "You have " + player.backpack.FreeWeight() + "kg free space left.");	
+
 	}
 	// Try to go to one direction. If there is an exit, enter the new
 	// room, otherwise print an error message.
@@ -176,7 +186,7 @@ class Game
 			return;
 		}
 
-		player.Damage(10);
+		player.Damage(40);
 		//player.Heal(25);
 
 		player.CurrentRoom = nextRoom; // Update the player's current room
@@ -246,9 +256,43 @@ class Game
 		{
 			Console.WriteLine($"You don't have a {itemName} in your inventory.");
 		}
-
-
 	}
+
+	private void Use(Command command)
+	{
+		if (!command.HasSecondWord())
+		{
+			Console.WriteLine("Use what?");
+			return;
+		}
+		string itemName = command.SecondWord;
+		Item item = player.backpack.Get(itemName);
+		if (item != null)
+		{
+			if (itemName == "potion")
+			{
+				player.Heal(25);
+				Console.WriteLine("You used the potion and gained 25 health.");
+			}
+
+				if (itemName == "sword")
+				{
+					Console.WriteLine("It did nothing yet...");
+				
+				}
+
+			else
+			{
+				Console.WriteLine("You can't use that item.");
+			}
+		}
+		else
+		{
+			Console.WriteLine($"You don't have a {itemName} in your inventory.");
+		}
+	}
+
 }
+
 
 

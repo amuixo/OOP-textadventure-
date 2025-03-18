@@ -14,7 +14,7 @@ public class Inventory
     // methods
     public bool Put(string itemName, Item item)
     {
-             if (TotalWeight() + item.Weight <= maxWeight)
+             if (item.Weight <= FreeWeight())
         {
             items[itemName] = item;
             return true;

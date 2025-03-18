@@ -14,20 +14,38 @@ class Player
     }
 
     // Methods
-    public int Damage(int amount)
-    {
-        return this.health -= amount;
-    } // player loses some health... 
+  public int Damage(int amount)
+	{
+		this.health -= amount;
+		if (this.health < 0)
+		{
+			this.health = 0;
+		}
+		return this.health;
+	} // player loses some health
 
-    public int Heal(int amount)
-    {
-        return this.health += amount;
-    } // player's health restores... 
+ 
+
+	public int Heal(int amount)
+	{
+
+		this.health += amount;
+		if (this.health > 100)
+		{
+			this.health = 100;
+		}
+		return this.health;
+    } // player gains some health
 
     public bool IsAlive()
-    {
-        return health > 0;
-    } // checks whether the player is alive or not
+	{
+		if (this.health == 0)
+		{
+			// Console.WriteLine("You died, noob! Write 'quit' to exit the game");	
+			return false;
+		}
+		return true;
+	}  // checks whether the player is alive or not
 
     public bool TakeFromChest(string itemName)
     {
