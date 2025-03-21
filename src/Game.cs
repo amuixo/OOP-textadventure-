@@ -373,11 +373,6 @@ class Game
 			}
 			Console.WriteLine("You're freezing to death, You are losing health drastically!");
 		}
-
-		if (!player.IsAlive())
-		{
-			Console.WriteLine("You freezed to death :(, write 'quit' to exit the game");
-		}
 	}
 
 }
