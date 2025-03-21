@@ -10,7 +10,7 @@ class Player
     {
         health = 100;
         CurrentRoom = null;
-        backpack = new Inventory(25); // 25kg is pretty heavy to carry around all day.
+        backpack = new Inventory(250); // 25kg is pretty heavy to carry around all day.
     }
 
     // Methods

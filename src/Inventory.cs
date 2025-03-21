@@ -58,4 +58,9 @@ public class Inventory
         }
         return str;
     }
+
+    public bool Contains(string itemName)
+    {
+        return items.ContainsKey(itemName);
+    }
 }
