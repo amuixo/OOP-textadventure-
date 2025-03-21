@@ -55,7 +55,7 @@ class Room
     // "Exits: north, west".
     private string GetExitString()
     {
-        string str = "Exits: ";
+        string str = "Paths: ";
         str += String.Join(", ", exits.Keys);
 
         return str;
@@ -72,4 +72,14 @@ class Room
     {
         get { return chest; }
     }
+    // method to remove an exit
+    public void RemoveExit(string direction)
+    {
+        if (exits.ContainsKey(direction))
+        {
+            exits.Remove(direction);
+        }
+    }
 }
+
+

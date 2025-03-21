@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 
 class Game
 {
@@ -8,6 +9,9 @@ class Game
 
 	private Room shrineroom;
 	private Room shrineroom1;
+	private Room hill1;
+
+	private Stopwatch stopwatch;
 
 	// Constructor
 	public Game()
@@ -15,6 +19,7 @@ class Game
 		parser = new Parser();
 		player = new Player();
 		CreateRooms();
+		stopwatch = new Stopwatch();
 	}
 
 	// Initialise the Rooms (and the Items)
@@ -22,19 +27,22 @@ class Game
 	{
 		// Create the rooms
 
-		Room forest = new Room("you're alone in a forest and there seems to only be one path");
+		Room forest = new Room("You're alone in the forest and you only see one path you can go.");
 		Room shrine = new Room("You see a shrine in front of you, maybe you should look around");
-		Room shrine1 = new Room("the monster passed by you, you can grab the key safetly now.");
-		Room cabin = new Room("you're in a cozy cabin but you're freezing, maybe look around for some items.");
-		Room hill = new Room("you went up the hill, but there's nothing here.");
+		Room shrine1 = new Room("The monster passed by you, you can grab the key safetly now.");
+		Room cabin = new Room("You're in a cozy cabin but you're freezing, maybe look around for some items.");
+		Room hill = new Room("You followed the path and ended up on top of the hill, you're freezing to death.");
+		hill1 = hill;
 		shrineroom = shrine;
 		shrineroom1 = shrine1;
 
 
 		// Initialise room exits
 		forest.AddExit("north", shrine);
-		// outside.AddExit("south", lab);
-		// outside.AddExit("west", pub);
+		shrine.AddExit("south", forest);
+		shrine1.AddExit("west", cabin);
+		shrine1.AddExit("east", hill);
+
 		// outside.AddExit("down", basement);
 		// outside.AddExit("up", attic);
 
@@ -72,7 +80,10 @@ class Game
 		bool finished = false;
 		while (!finished)
 		{
+			stopwatch.Start();
+
 			Command command = parser.GetCommand();
+			hill(command); // Ensure hill1 is properly initialized before calling this
 			finished = ProcessCommand(command);
 			if (!player.IsAlive())
 			{
@@ -88,13 +99,13 @@ class Game
 	private void PrintWelcome()
 	{
 		Console.WriteLine();
-		Console.WriteLine("Welcome to Zuul!");
 		Console.WriteLine("You decided to go on an adventure in the forest, but there seems to be something lurking around.");
 		Console.WriteLine("Maybe try to find out what it is...");
 		Console.WriteLine("Type 'help' if you need help.");
 		Console.WriteLine();
 		Console.WriteLine(player.CurrentRoom.GetLongDescription());
 	}
+
 
 	// Given a command, process (that is: execute) the command.
 	// If this command ends the game, it returns true.
@@ -135,18 +146,14 @@ class Game
 			case "use":
 				Use(command);
 				break;
-
 			case "hide":
 				PrintHide(command);
 				break;
-
-
-
-
 		}
 
 		return wantToQuit;
 	}
+
 
 	// ######################################
 	// implementations of user commands:
@@ -166,10 +173,27 @@ class Game
 
 	private void PrintStatus()
 	{
-		Console.WriteLine("Your health is: " + player.health);
-		Console.WriteLine("You are in: " + player.CurrentRoom.GetShortDescription());
-		Console.WriteLine("You are carrying: " + player.backpack.ShowInventory() + "You have " + player.backpack.FreeWeight() + "kg free space left.");
+		Console.WriteLine("Health: " + player.health + "%");
 
+		if (hasHidFromMonster)
+		{
+			Console.WriteLine("Location: Shrine");
+		}
+		else
+		{
+			Console.WriteLine("Location: " + player.CurrentRoom.GetShortDescription());
+		}
+
+		string inventory = player.backpack.ShowInventory().Trim();
+
+		if (string.IsNullOrEmpty(inventory))
+		{
+			Console.WriteLine("Backpack: You don't have any items in your backpack.");
+		}
+		else
+		{
+			Console.WriteLine("Backpack: " + inventory + ", you have " + player.backpack.FreeWeight() + "kg free space left.");
+		}
 	}
 	// Try to go to one direction. If there is an exit, enter the new
 	// room, otherwise print an error message.
@@ -192,37 +216,38 @@ class Game
 			return;
 		}
 
-		player.Damage(40);
+		// player.Damage(40);
 		//player.Heal(25);
 
 		player.CurrentRoom = nextRoom; // Update the player's current room
 		Console.WriteLine(player.CurrentRoom.GetLongDescription());
 	}
 	///Look if no item "There's no items in this room.." if item string in deze kamer dan laat namen zien
-private void PrintLook()
-{
-    Inventory chest = player.CurrentRoom.Chest;
-    string items = chest.ShowInventory();
+	private void PrintLook()
+	{
+		Inventory chest = player.CurrentRoom.Chest;
+		string items = chest.ShowInventory();
 
-    if (items == "nothing")
-    {
-        Console.WriteLine("There are no items in this room...");
-    }
-    else if (player.CurrentRoom == shrineroom)
-    {
-        Console.WriteLine("You see the following items: " + items);
-        Console.WriteLine("There's a monster guarding the key, what will you do?");
-    }
-    else if (player.CurrentRoom == shrineroom1)
-    {
-        Console.WriteLine("You see the following items: " + items);
-        Console.WriteLine("You can grab the key safely now.");
-    }
-    else
-    {
-        Console.WriteLine("You see the following items: " + items);
-    }
-}
+		if (items == "nothing")
+		{
+			Console.WriteLine("There are no items in this room...");
+		}
+		else if (player.CurrentRoom == shrineroom)
+		{
+			Console.WriteLine("You see the following items: " + items);
+			Console.WriteLine("There's a monster guarding the key, what will you do? hide or take the key and try to run back?");
+			shrineroom.RemoveExit("south");
+		}
+		else if (player.CurrentRoom == shrineroom1)
+		{
+			Console.WriteLine("You see the following items: " + items);
+			Console.WriteLine("You see a cabin nearby west and another path that goes east deeper into the forest.");
+		}
+		else
+		{
+			Console.WriteLine("You see the following items: " + items);
+		}
+	}
 
 	private void TakeItem(Command command)
 	{
@@ -248,9 +273,9 @@ private void PrintLook()
 			return;
 		}
 
-		if (player.backpack.Contains(itemName))
+		if (player.backpack.Put(itemName, item))
 		{
-			Console.WriteLine("You took the " + itemName);
+			Console.WriteLine("You took the " + itemName + ".");
 		}
 		else
 		{
@@ -280,18 +305,19 @@ private void PrintLook()
 			Console.WriteLine($"You don't have a {itemName} in your inventory.");
 		}
 	}
+	private bool hasHidFromMonster = false;
 	private void PrintHide(Command command)
 	{
 		if (player.CurrentRoom == shrineroom)
 		{
-			Console.WriteLine("You hid from the monster and it passed by you.");
-			player.CurrentRoom = shrineroom1;
+			Console.WriteLine("You hid from the monster and it passed by you, it's safe to come out now.");
+			player.CurrentRoom = shrineroom1; // Update the player's current room
+			hasHidFromMonster = true;
 		}
 		else if (player.CurrentRoom != shrineroom)
 		{
 			Console.WriteLine("You can't hide here.");
 		}
-
 	}
 	private void Use(Command command)
 	{
@@ -327,7 +353,31 @@ private void PrintLook()
 		}
 	}
 
+
+	private void hill(Command command)
+	{
+		if (hill1 == null)
+		{
+			Console.WriteLine("Error: The hill room is not initialized.");
+			return;
+		}
+
+		if (player.CurrentRoom == hill1)
+		{
+			stopwatch.Stop();
+			int s = stopwatch.Elapsed.Seconds;
+
+			for (int i = 0; i < s; i++)
+			{
+				player.Damage(1);
+			}
+			Console.WriteLine("You're freezing to death, You are losing health drastically!");
+		}
+
+		if (!player.IsAlive())
+		{
+			Console.WriteLine("You freezed to death :(, write 'quit' to exit the game");
+		}
+	}
+
 }
-
-
-
