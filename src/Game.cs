@@ -31,7 +31,7 @@ class Game
 		Room shrine = new Room("You see a shrine in front of you, maybe you should look around");
 		Room shrine1 = new Room("The monster passed by you, you can grab the key safetly now.");
 		Room cabin = new Room("You're in a cozy cabin but you're freezing, maybe look around for some items.");
-		Room hill = new Room("You followed the path and ended up on top of the hill, you're freezing to death.");
+		Room hill = new Room("You followed the path and ended up on top of the hill, you're freezing to death. Go back fast!");
 		hill1 = hill;
 		shrineroom = shrine;
 		shrineroom1 = shrine1;
@@ -42,6 +42,7 @@ class Game
 		shrine.AddExit("south", forest);
 		shrine1.AddExit("west", cabin);
 		shrine1.AddExit("east", hill);
+		hill.AddExit("west", shrine1);
 
 		// outside.AddExit("down", basement);
 		// outside.AddExit("up", attic);
@@ -50,8 +51,8 @@ class Game
 		Item key = new Item(2, "a key!");
 		Item wood = new Item(40, "a piece of wood! maybe it can be used as a weapon? or to make a fire?");
 		Item lighter = new Item(5, "a lighter! it looks like you can try to start a fire with it.");
-		Item cup = new Item(5, "a cup... what can you do with this?");
-		// Item campfire = new Item(5, "a ");
+		Item cup = new Item(100, "a cup filled with something... what can you do with this?");
+		Item campfire = new Item(5, "a ");
 
 
 		// And add them to the Rooms
@@ -83,7 +84,7 @@ class Game
 			stopwatch.Start();
 
 			Command command = parser.GetCommand();
-			hill(command); // Ensure hill1 is properly initialized before calling this
+			hill(command);
 			finished = ProcessCommand(command);
 			if (!player.IsAlive())
 			{
@@ -222,6 +223,7 @@ class Game
 		player.CurrentRoom = nextRoom; // Update the player's current room
 		Console.WriteLine(player.CurrentRoom.GetLongDescription());
 	}
+
 	///Look if no item "There's no items in this room.." if item string in deze kamer dan laat namen zien
 	private void PrintLook()
 	{
@@ -311,7 +313,7 @@ class Game
 		if (player.CurrentRoom == shrineroom)
 		{
 			Console.WriteLine("You hid from the monster and it passed by you, it's safe to come out now.");
-			player.CurrentRoom = shrineroom1; // Update the player's current room
+			player.CurrentRoom = shrineroom1; // update
 			hasHidFromMonster = true;
 		}
 		else if (player.CurrentRoom != shrineroom)
@@ -330,22 +332,22 @@ class Game
 		Item item = player.backpack.Get(itemName);
 		if (item != null)
 		{
-			if (itemName == "potion")
-			{
-				player.Heal(25);
-				Console.WriteLine("You used the potion and gained 25 health.");
-			}
+			// if (itemName == "potion")
+			// {
+			// 	player.Heal(25);
+			// 	Console.WriteLine("You used the potion and gained 25 health.");
+			// }
 
-			if (itemName == "sword")
-			{
-				Console.WriteLine("It did nothing yet...");
+			// if (itemName == "sword")
+			// {
+			// 	Console.WriteLine("It did nothing yet...");
 
-			}
+			// }
 
-			else
-			{
-				Console.WriteLine("You can't use that item.");
-			}
+			// else
+			// {
+			// 	Console.WriteLine("You can't use that item.");
+			// }
 		}
 		else
 		{
@@ -367,7 +369,7 @@ class Game
 			stopwatch.Stop();
 			int s = stopwatch.Elapsed.Seconds;
 
-			for (int i = 0; i < s; i++)
+			for (int i = 0; i < s; i++) //?????
 			{
 				player.Damage(1);
 			}
